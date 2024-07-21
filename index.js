@@ -2,7 +2,7 @@ const express = require("express");
 const sqlite3 = require("sqlite3").verbose();
 const https = require("https");
 const cors = require("cors");
-import fs from "fs";
+const fs = requere("fs");
 require("dotenv").config();
 
 const sendMessage = require("./mail.service");
