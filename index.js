@@ -1,5 +1,8 @@
 const express = require("express");
 const sqlite3 = require("sqlite3").verbose();
+const https = require("https");
+const cors = require("cors");
+import fs from "fs";
 require("dotenv").config();
 
 const sendMessage = require("./mail.service");
@@ -8,8 +11,11 @@ const { isValidEmail, generateVerifyCode } = require("./helper.service");
 const app = express();
 
 app.use(express.json());
-
-const PORT = process.env.PORT || 3000;
+app.use(
+  cors({
+    origin: "*",
+  })
+);
 
 const db = new sqlite3.Database("./main.db", (err) => {
   if (err) {
@@ -85,4 +91,13 @@ app.post("/check-code", (req, res) => {
   });
 });
 
-app.listen(PORT, () => console.log("Started on port " + PORT));
+const { SSL_KEY_PATH, SSL_CERT_PATH } = process.env;
+
+const sslOptions = {
+  key: fs.readFileSync(SSL_KEY_PATH),
+  cert: fs.readFileSync(SSL_CERT_PATH),
+};
+
+https
+  .createServer(sslOptions, app)
+  .listen(443, () => console.log("Secure server started on port 443"));
